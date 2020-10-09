@@ -20,7 +20,7 @@ const AccountInfoSchema = mongoose.Schema({
 });
 
 const UserSchema = mongoose.Schema({
-    id: mongoose.Schema.Types.ObjectId,
+    _id: mongoose.Schema.Types.ObjectId,
     personalInfo: PersonalInfoSchema,
     accountInfo: AccountInfoSchema
 });

@@ -10,14 +10,17 @@ const userRoutes = require('./api/routes/user')
 const productRoutes = require('./api/routes/product');
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() =>
-        console.log("MongoDB connected")
+    .then(() => {
+        console.log("================================")
+        console.log("\tMongoDB connected")
+        console.log("================================")
+    }
     )
     .catch((error) =>
-        console.log("SOME SHIT" + error)
+        console.log("SOME SHIT\n" + error)
     )
 
-server.use(bodyParser.json({limit: '50mb'}))
+server.use(bodyParser.json({ limit: '50mb' }))
 server.use('/users', userRoutes);
 server.use('/products', productRoutes);
 
