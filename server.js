@@ -14,14 +14,14 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
         console.log("================================")
         console.log("\tMongoDB connected")
         console.log("================================")
+
+        server.use(bodyParser.json({ limit: '50mb' }))
+        server.use('/users', userRoutes);
+        server.use('/products', productRoutes);
+
+        server.listen(3000);
     }
     )
     .catch((error) =>
         console.log("SOME SHIT\n" + error)
     )
-
-server.use(bodyParser.json({ limit: '50mb' }))
-server.use('/users', userRoutes);
-server.use('/products', productRoutes);
-
-server.listen(3000);

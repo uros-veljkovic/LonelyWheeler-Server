@@ -5,6 +5,29 @@ const User = userModule.userModel
 const PersonalInfo = userModule.personalInfoModel
 const AccountInfo = userModule.accountInfoModel
 
+
+exports.signUpUser = (req, res, next) => {
+
+    const entity = req.body
+
+    User.findOne({ "accountInfo.username": entity.accountInfo.username },
+        (error, user) => {
+            console.log(user)
+            if (error) {
+                console.log("ERROR")
+                return
+            } else if (user) {
+                console.log("FOUND 1")
+                respondRequestFail(res, null, "User with this username/email already exist !")
+            } else {
+                console.log("FOUND 0")
+                persistAndRespond(req, res)
+            }
+        })
+
+}
+
+
 exports.getUserById = (req, res, next) => {
     const id = req.params.id;
     const user = User.findById(id)
@@ -19,8 +42,6 @@ exports.getUserById = (req, res, next) => {
     }
 };
 
-
-
 exports.getAllUsers = (req, res, next) => {
 
     User.find({}, (error, resultObjects) => {
@@ -31,28 +52,6 @@ exports.getAllUsers = (req, res, next) => {
         }
     });
 };
-
-
-
-exports.signUpUser = (req, res, next) => {
-
-    let entity = req.body
-
-    User.exists({ $or: [{ username: entity.username }, { email: entity.email }] },
-        function (err, result) {
-            if (err) {
-                respondServerFail(res, null, "Server error")
-            } else if (result) {
-                console.log("FOUND 1")
-                respondRequestFail(res, null, "User with this username/email already exist !")
-            } else {
-                console.log("FOUND 0")
-                persistAndRespond(req, res)
-            }
-        });
-}
-
-
 
 exports.signInUser = (req, res, next) => {
     let entity = User.findOne({
