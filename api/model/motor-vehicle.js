@@ -1,15 +1,15 @@
 const mongoose = require("mongoose")
 
 const MotorVehicleSchema = mongoose.Schema({
-    id: Number,
-    sellerId: Number,
+    _id: String,
+    sellerId: String,
     basicInfo: {
         title: String,
         value: Number,
         dateModified: Number,
         model: String,
         brand: String,
-        yearOfProduction: String
+        yearOfProduction: Number
     },
     condition: String,
     pictures: [String],

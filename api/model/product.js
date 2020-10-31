@@ -1,15 +1,15 @@
 const mongoose = require("mongoose")
 
-const HumanPoweredVehicleSchema = mongoose.Schema({
-    id: Number,
-    sellerId: Number,
+const ProductSchema = mongoose.Schema({
+    _id: String,
+    sellerId: String,
     basicInfo: {
         title: String,
         value: Number,
         dateModified: Number,
         model: String,
         brand: String,
-        yearOfProduction: String
+        yearOfProduction: Number
     },
     condition: String,
     pictures: [String],
@@ -20,7 +20,6 @@ const HumanPoweredVehicleSchema = mongoose.Schema({
     colorExterior: String,
     colorInterior: String,
     materialInterior: String,
-    humanPoweredVehicleType: String,
 });
 
-module.exports = mongoose.model("HumanPoweredVehicle", HumanPoweredVehicleSchema);
+module.exports = mongoose.model("Product", ProductSchema);
