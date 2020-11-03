@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 
 const PedestrianVehicleModel = require('../api/model/pedestrian-vehicle')
-const ProductModel = require('../api/model/product')
+const OfferModel = require('../api/model/offer')
 
 exports.create = (request, response, next) => {
 

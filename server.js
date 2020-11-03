@@ -11,6 +11,7 @@ const motorVehicleRoutes = require('./api/routes/motor-vehicle');
 const equipmentRoutes = require('./api/routes/equipment')
 const pedestrianVehicleRoutes = require('./api/routes/pedestrian-vehicle')
 const likedOfferRoutes = require('./api/routes/liked-offer')
+const offerRouter = require('./api/routes/offer')
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
@@ -25,6 +26,7 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
         server.use('/equipment', equipmentRoutes)
         server.use('/pedestrian-vehicles', pedestrianVehicleRoutes)
         server.use('/liked-offer', likedOfferRoutes)
+        server.use('/offer', offerRouter)
 
         server.listen(5050);
     })

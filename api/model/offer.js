@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 
-const ProductSchema = mongoose.Schema({
+const OfferSchema = mongoose.Schema({
     _id: String,
     sellerId: String,
     basicInfo: {
@@ -22,4 +22,4 @@ const ProductSchema = mongoose.Schema({
     materialInterior: String,
 });
 
-module.exports = mongoose.model("Product", ProductSchema);
+module.exports = mongoose.model("Offer", OfferSchema);
