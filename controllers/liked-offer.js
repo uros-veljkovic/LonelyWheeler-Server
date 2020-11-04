@@ -1,5 +1,8 @@
 const mongoose = require("mongoose")
 const LikedOffersModel = require('../api/model/liked-offer')
+const MotorVehicleModel = require('../api/model/motor-vehicle')
+const PedestrianVehicleModel = require('../api/model/pedestrian-vehicle')
+const EquipmentModel = require('../api/model/equipment')
 
 exports.createOrDelete = (request, response, next) => {
 
@@ -30,11 +33,14 @@ exports.createOrDelete = (request, response, next) => {
 
 exports.readAll = (request, response, next) => {
 
-    const userId = request.params.userId
+    const userId = request.query.userId
+    console.log("\n\n=========================================")
+    console.log("USER " + userId + " -> LOADING FAVORITES.")
+    console.log("=========================================\n")
 
-    LikedOffersModel.find({ "userId": userId }, function (error, docs) {
+    LikedOffersModel.find({ userId: userId }, function (error, docs) {
         if (docs) {
-            onSuccess(response, docs, "Favorites for user " + userId + " loaded successfully!")
+            loadFullOffers(response, docs)
         } else if (error) {
             onFail(response, null, "No favorites loaded for user " + userId)
         } else {
@@ -43,6 +49,61 @@ exports.readAll = (request, response, next) => {
 
     });
 };
+//Ugly as fuck...
+function loadFullOffers(response, docs) {
+    let offerArray = []
+    docs.forEach((doc, index) => {
+
+        console.log(index)
+        console.log(docs.length)
+        switch (doc.entityType) {
+            case "MotorVehicleEntity":
+                MotorVehicleModel.find({ _id: doc.offerId })
+                    .then(doc => {
+                        console.log("FOUND DOC WITH TITLE -> " + doc)
+                        offerArray.push(doc)
+                        if (index === docs.length - 1) {
+                            onSuccess(response, flatten(offerArray), "Favorites loaded successfully !")
+                            return
+                        }
+                    })
+                break;
+            case "PedestrianVehicleEntity":
+                PedestrianVehicleModel.find({ _id: doc.offerId })
+                    .then(doc => {
+                        console.log(doc)
+                        offerArray.push(doc)
+                        if (index === docs.length - 1) {
+                            onSuccess(response, flatten(offerArray), "Favorites loaded successfully !")
+                            return
+                        }
+                    })
+                break;
+            case "EquipmentEntity":
+                EquipmentModel.find({ _id: doc.offerId })
+                    .then(doc => {
+                        console.log(doc)
+                        offerArray.push(doc)
+                        if (index === docs.length - 1) {
+                            onSuccess(response, flatten(offerArray), "Favorites loaded successfully !")
+                            return
+                        }
+                    })
+                break;
+            default:
+                console.log("==== SOMETHING WENT WRONG ====");
+                break;
+        }
+
+    })
+
+}
+
+function flatten(arr) {
+    return arr.reduce(function (flat, toFlatten) {
+        return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
+    }, []);
+}
 
 exports.read = (request, response, next) => {
 
