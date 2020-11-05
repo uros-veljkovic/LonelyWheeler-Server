@@ -28,7 +28,7 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
         server.use('/liked-offer', likedOfferRoutes)
         server.use('/offer', offerRouter)
 
-        server.listen(5050);
+        server.listen(process.env.PORT || 5050);
     })
     .catch((error) =>
         console.log("SOME SHIT\n" + error)
