@@ -49,9 +49,10 @@ exports.signUpUser = (request, response, next) => {
 
 exports.read = (request, response, next) => {
     const userId = request.params.id
-    
+
     UserModel.findById(userId, function (error, user) {
         if (user) {
+            console.log("Picture first char -> " + user.picture[0])
             onSuccess(response, user, "User found !")
         } else if (error) {
             onFail(response, null, "ERROR loading user with id " + userId)
