@@ -4,6 +4,9 @@ const MotorVehicleModel = require('../api/model/motor-vehicle')
 const PedestrianVehicleModel = require('../api/model/pedestrian-vehicle')
 const EquipmentModel = require('../api/model/equipment')
 
+var assert = require('assert')
+
+
 exports.createOrDelete = (request, response, next) => {
 
     const likedOffer = new LikedOffersModel({
@@ -38,9 +41,14 @@ exports.readAll = (request, response, next) => {
     console.log("USER " + userId + " -> LOADING FAVORITES.")
     console.log("=========================================\n")
 
-    LikedOffersModel.find({ userId: userId }, function (error, docs) {
+    LikedOffersModel.find({ userId: userId }, 'offerId', function (error, docs) {
         if (docs) {
-            loadFullOffers(response, docs)
+            const arrayOfOfferIDs = []
+            docs.forEach(doc => {
+                arrayOfOfferIDs.push(doc.offerId)
+            })
+            console.log(arrayOfOfferIDs)
+            loadOffers(response, arrayOfOfferIDs)
         } else if (error) {
             onFail(response, null, "No favorites loaded for user " + userId)
         } else {
@@ -49,54 +57,22 @@ exports.readAll = (request, response, next) => {
 
     });
 };
-//Ugly as fuck...
-function loadFullOffers(response, docs) {
-    let offerArray = []
-    docs.forEach((doc, index) => {
 
-        console.log(index)
-        console.log(docs.length)
-        switch (doc.entityType) {
-            case "MotorVehicleEntity":
-                MotorVehicleModel.find({ _id: doc.offerId })
-                    .then(doc => {
-                        console.log("FOUND DOC WITH TITLE -> " + doc)
-                        offerArray.push(doc)
-                        if (index === docs.length - 1) {
-                            onSuccess(response, flatten(offerArray), "Favorites loaded successfully !")
-                            return
-                        }
-                    })
-                break;
-            case "PedestrianVehicleEntity":
-                PedestrianVehicleModel.find({ _id: doc.offerId })
-                    .then(doc => {
-                        console.log(doc)
-                        offerArray.push(doc)
-                        if (index === docs.length - 1) {
-                            onSuccess(response, flatten(offerArray), "Favorites loaded successfully !")
-                            return
-                        }
-                    })
-                break;
-            case "EquipmentEntity":
-                EquipmentModel.find({ _id: doc.offerId })
-                    .then(doc => {
-                        console.log(doc)
-                        offerArray.push(doc)
-                        if (index === docs.length - 1) {
-                            onSuccess(response, flatten(offerArray), "Favorites loaded successfully !")
-                            return
-                        }
-                    })
-                break;
-            default:
-                console.log("==== SOMETHING WENT WRONG ====");
-                break;
-        }
-
-    })
-
+function loadOffers(response, offerIds) {
+    Promise.all([
+        MotorVehicleModel.find({ '_id': { $in: offerIds } }),
+        PedestrianVehicleModel.find({ '_id': { $in: offerIds } }),
+        EquipmentModel.find({ '_id': { $in: offerIds } })
+    ]).then(([docs1, docs2, docs3]) => {
+        const arrayOfArrays = [docs1, docs2, docs3]
+        const array = flatten(arrayOfArrays)
+        array.forEach(item => {
+            console.log(item._id)
+        })
+        onSuccess(response, array, "Liked offers loaded !")
+    }).catch(() => {
+        onFail(response, null, "Error loading favorite offers for user...")
+    });
 }
 
 function flatten(arr) {
