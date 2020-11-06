@@ -63,13 +63,12 @@ function loadOffers(response, offerIds) {
         MotorVehicleModel.find({ '_id': { $in: offerIds } }),
         PedestrianVehicleModel.find({ '_id': { $in: offerIds } }),
         EquipmentModel.find({ '_id': { $in: offerIds } })
+
     ]).then(([docs1, docs2, docs3]) => {
         const arrayOfArrays = [docs1, docs2, docs3]
         const array = flatten(arrayOfArrays)
-        array.forEach(item => {
-            console.log(item._id)
-        })
         onSuccess(response, array, "Liked offers loaded !")
+
     }).catch(() => {
         onFail(response, null, "Error loading favorite offers for user...")
     });
