@@ -11,6 +11,7 @@ const EquipmentSchema = mongoose.Schema({
         brand: String,
         yearOfProduction: Number
     },
+    entityClassSimpleName: String,
     condition: String,
     pictures: [String],
     valueFixed: Boolean,
