@@ -19,7 +19,7 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
         console.log("\tMongoDB connected")
         console.log("================================")
 
-        server.use(bodyParser.json({ limit: '50mb' }))
+        server.use(bodyParser.json({ limit: '100mb' }))
 
         server.use('/users', userRoutes);
         server.use('/motor-vehicles', motorVehicleRoutes);

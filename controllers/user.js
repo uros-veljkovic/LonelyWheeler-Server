@@ -63,14 +63,16 @@ exports.read = (request, response, next) => {
 };
 
 exports.readAll = (request, response, next) => {
-
-    UserModel.find({}, (error, resultObjects) => {
-        if (error) {
-            onFail(response, null, "Users not found !")
-        } else {
-            onSuccess(response, resultObjects, "Users found !")
-        }
-    });
+    UserModel.find(
+        {},
+        '_id accountInfo.picture accountInfo.username',
+        (error, resultObjects) => {
+            if (resultObjects) {
+                onSuccess(response, resultObjects, "Users found !")
+            } else {
+                onFail(response, null, "Users not found !")
+            }
+        });
 };
 
 
