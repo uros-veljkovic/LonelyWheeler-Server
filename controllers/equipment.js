@@ -22,7 +22,7 @@ exports.create = (request, response, next) => {
 
 exports.readAll = (request, response, next) => {
 
-    EquipmentModel.find({}, function(error, docs) {
+    EquipmentModel.find({}, function (error, docs) {
         if (docs) {
             onSuccess(response, docs, "Equipment offers loaded !")
         } else if (error) {
@@ -51,7 +51,7 @@ exports.read = (request, response, next) => {
 };
 
 function onSuccess(response, object, message) {
-    console.log(message)
+    prettyPrint(message, "$", 5)
     response.status(200).json({
         message: message,
         entity: object
@@ -59,9 +59,28 @@ function onSuccess(response, object, message) {
 }
 
 function onFail(response, object, message) {
-    console.log(message)
+    prettyPrint(message, "!", 5)
     response.status(201).json({
         message: message,
         entity: object
     });
+}
+
+function prettyPrint(message, separator, numOfRows) {
+    // 6
+    console.log()
+    var dateTime = new Date().toLocaleTimeString()
+    console.log(" ".repeat(102) + dateTime)
+    for (i = 0; i < numOfRows; i++) {
+        if (i != 2) {
+            let stars = ""
+            for (j = 0; j < (message.length + 100); j++) {
+                stars = stars + separator
+            }
+            console.log(stars)
+        } else {
+            console.log(separator.repeat(40) + " ".repeat(10) + message + " ".repeat(10) + separator.repeat(40));
+        }
+
+    }
 }

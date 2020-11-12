@@ -15,9 +15,8 @@ const offerRouter = require('./api/routes/offer')
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
-        console.log("================================")
-        console.log("\tMongoDB connected")
-        console.log("================================")
+        prettyPrint("SERVER STARTED !", "-", 5);
+
 
         server.use(bodyParser.json({ limit: '100mb' }))
 
@@ -31,5 +30,24 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
         server.listen(process.env.PORT || 5050);
     })
     .catch((error) =>
-        console.log("SOME SHIT\n" + error)
+        prettyPrint("ERROR STARTING SERVER", "+", 5)
     )
+
+function prettyPrint(message, separator, numOfRows) {
+    // 6
+    console.log()
+    var dateTime = new Date().toLocaleTimeString()
+    console.log(" ".repeat(102) + dateTime)
+    for (i = 0; i < numOfRows; i++) {
+        if (i != 2) {
+            let stars = ""
+            for (j = 0; j < (message.length + 100); j++) {
+                stars = stars + separator
+            }
+            console.log(stars)
+        } else {
+            console.log(separator.repeat(40) + " ".repeat(10) + message + " ".repeat(10) + separator.repeat(40));
+        }
+
+    }
+}
