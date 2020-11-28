@@ -3,22 +3,51 @@ const mongoose = require("mongoose")
 const PedestrianVehicleModel = require('../api/model/pedestrian-vehicle')
 const OfferModel = require('../api/model/offer')
 
-exports.create = (request, response, next) => {
+// exports.createOrUpdate = (request, response, next) => {
 
-    const vehicle = new PedestrianVehicleModel({
+//     const vehicle = new PedestrianVehicleModel({
+//         ...request.body,
+//         _id: mongoose.Types.ObjectId(),
+//     })
+
+//     vehicle.save(vehicle).then(savedVehicle => {
+//         if (savedVehicle) {
+//             onSuccess(response, savedVehicle, "Offer saved !", 202)
+//         } else {
+//             onFail(response, null, "Fail saving PEDESTRIAN VEHICLE OFFER !")
+//         }
+//     }).catch(error => {
+//         console.log(error)
+//         onFail(response, null, "Saving PEDESTRIAN VEHICLE OFFER unsuccessful !")
+//     });
+// };
+
+exports.createOrUpdate = (request, response, next) => {
+
+    let entityId = request.body._id
+
+    if (entityId === "") {
+        entityId = mongoose.Types.ObjectId()
+    }
+
+    let vehicle = new PedestrianVehicleModel({
         ...request.body,
-        _id: mongoose.Types.ObjectId(),
+        _id: entityId,
     })
 
-    vehicle.save(vehicle).then(savedVehicle => {
-        if (savedVehicle) {
-            onSuccess(response, savedVehicle, "PEDESTRIAN VEHICLE OFFER saved !")
+    const filter = { _id: entityId }
+    const options = {
+        upsert: true,
+        new: true
+    }
+
+
+    PedestrianVehicleModel.findOneAndUpdate(filter, vehicle, options, function (err, savedVehicle) {
+        if (err) {
+            onFail(response, null, "Fail saving offer !", 500)
         } else {
-            onFail(response, null, "Fail saving PEDESTRIAN VEHICLE OFFER !")
+            onSuccess(response, savedVehicle, "Offer saved !", 200)
         }
-    }).catch(error => {
-        console.log(error)
-        onFail(response, null, "Saving PEDESTRIAN VEHICLE OFFER unsuccessful !")
     });
 };
 
@@ -26,9 +55,9 @@ exports.readAll = (request, response, next) => {
 
     PedestrianVehicleModel.find({}, function (error, docs) {
         if (docs) {
-            onSuccess(response, docs, "PEDESTRIAN VEHICLE OFFERS loaded !")
+            onSuccess(response, docs, "PEDESTRIAN VEHICLE OFFERS loaded !", 200)
         } else if (error) {
-            onFail(response, null, "No PEDESTRIAN VEHICLE OFFERS loaded...")
+            onFail(response, null, "No PEDESTRIAN VEHICLE OFFERS loaded...", 400)
         } else {
 
         }
@@ -42,27 +71,42 @@ exports.read = (request, response, next) => {
 
     PedestrianVehicleModel.findById(vehicleId, function (error, vehicle) {
         if (vehicle) {
-            onSuccess(response, vehicle, "PEDESTRIAN VEHICLE OFFER with id " + vehicleId + " found !")
+            onSuccess(response, vehicle, "PEDESTRIAN VEHICLE OFFER with id " + vehicleId + " found !", 200)
         } else if (error) {
-            onFail(response, null, "ERROR loading PEDESTRIAN VEHICLE OFFER with id " + vehicleId)
+            onFail(response, null, "ERROR loading PEDESTRIAN VEHICLE OFFER with id " + vehicleId, 500)
         } else {
-            onFail(response, null, "No PEDESTRIAN VEHICLE OFFER with id!" + vehicleId)
+            onFail(response, null, "No PEDESTRIAN VEHICLE OFFER with id!" + vehicleId, 400)
         }
 
     });
 };
 
-function onSuccess(response, object, message) {
-    prettyPrint(message, "#", 5)
+exports.delete = (request, response, next) => {
+    const vehicleId = request.params.id
+
+    PedestrianVehicleModel.findByIdAndRemove(vehicleId, function (error, deletedVehicle) {
+        if (error) {
+            onFail(response, null, "Failed to delete offer...", 400)
+        } else {
+            onSuccess(response, deletedVehicle, "Offer deleted !", 200)
+        }
+    })
+
+}
+
+function onSuccess(response, object, message, code) {
+    prettyPrint(message, "$", 5)
     response.status(200).json({
+        code: code,
         message: message,
         entity: object
     });
 }
 
-function onFail(response, object, message) {
+function onFail(response, object, message, code) {
     prettyPrint(message, "!", 5)
-    response.status(201).json({
+    response.status(200).json({
+        code: code,
         message: message,
         entity: object
     });

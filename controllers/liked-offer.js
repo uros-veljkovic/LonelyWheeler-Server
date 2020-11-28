@@ -3,6 +3,8 @@ const LikedOffersModel = require('../api/model/liked-offer')
 const MotorVehicleModel = require('../api/model/motor-vehicle')
 const PedestrianVehicleModel = require('../api/model/pedestrian-vehicle')
 const EquipmentModel = require('../api/model/equipment')
+const userModule = require('../api/model/user')
+const UserModel = userModule.userModel
 
 var assert = require('assert')
 
@@ -37,9 +39,17 @@ exports.createOrDelete = (request, response, next) => {
 exports.readAll = (request, response, next) => {
 
     const userId = request.query.userId
-    console.log("\n\n=========================================")
-    console.log("USER " + userId + " -> LOADING FAVORITES.")
-    console.log("=========================================\n")
+
+    UserModel.findById(userId, function (error, user) {
+        if (error) {
+            const message = "NO USER FOUND FOR FAVORITES"
+            prettyPrint(message, "!", 5)
+        } else {
+            const message = "USER [" + user.accountInfo.username + "] LOADING FAVORITE OFFERS"
+            prettyPrint(message, "~", 5)
+        }
+
+    })
 
     LikedOffersModel.find({ userId: userId }, 'offerId', function (error, docs) {
         if (docs) {
@@ -131,7 +141,7 @@ function remove(likedOffer, response) {
 }
 
 function onSuccess(response, object, message) {
-    console.log(message)
+    prettyPrint(message, "=", 5)
     response.status(200).json({
         message: message,
         entity: object
@@ -139,7 +149,7 @@ function onSuccess(response, object, message) {
 }
 
 function onFail(response, object, message) {
-    prettyPrint(message, "#", 5)
+    prettyPrint(message, "!", 5)
     response.status(201).json({
         message: message,
         entity: object

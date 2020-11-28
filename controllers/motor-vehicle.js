@@ -1,23 +1,60 @@
 const mongoose = require("mongoose")
 
 const MotorVehicleModel = require('../api/model/motor-vehicle')
-const OfferModel = require('../api/model/offer')
+
+// exports.createOrUpdate = (request, response, next) => {
+
+//     const vehicle = new MotorVehicleModel({
+//         ...request.body,
+//         _id: mongoose.Types.ObjectId(),
+//     })
+
+//     vehicle.save(vehicle).then(savedVehicle => {
+//         if (savedVehicle) {
+//             onSuccess(response, savedVehicle, "Offer saved !", 202)
+//         } else {
+//             onFail(response, null, "Fail saving offer !")
+//         }
+//     }).catch(error => {
+//         onFail(response, null, "Saving unsuccessful !")
+//     });
+// };
 
 exports.createOrUpdate = (request, response, next) => {
 
-    const vehicle = new MotorVehicleModel({
+    let entityId
+
+    if (request.body._id === "") {
+
+        // Create new id for entity
+        entityId = mongoose.Types.ObjectId()
+    } else {
+
+        // Take the id from request
+        entityId = request.body._id
+    }
+
+    let vehicle = new MotorVehicleModel({
         ...request.body,
-        _id: mongoose.Types.ObjectId(),
+        _id: entityId,
     })
 
-    vehicle.save(vehicle).then(savedVehicle => {
-        if (savedVehicle) {
-            onSuccess(response, savedVehicle, "Offer saved !")
+    const filter = {
+        _id: entityId,
+    }
+
+    const options = {
+        upsert: true,
+        new: true
+    }
+
+
+    MotorVehicleModel.findOneAndUpdate(filter, vehicle, options, function (err, savedVehicle) {
+        if (err) {
+            onFail(response, null, "Fail saving offer !", 500)
         } else {
-            onFail(response, null, "Fail saving offer !")
+            onSuccess(response, savedVehicle, "Offer saved !", 200)
         }
-    }).catch(error => {
-        onFail(response, null, "Saving unsuccessful !")
     });
 };
 
@@ -25,9 +62,9 @@ exports.readAll = (request, response, next) => {
 
     MotorVehicleModel.find({}, function (error, docs) {
         if (docs) {
-            onSuccess(response, docs, "Motor-vehicle offers loaded !")
+            onSuccess(response, docs, "Motor-vehicle offers loaded !", 200)
         } else if (error) {
-            onFail(response, null, "No offers loaded...")
+            onFail(response, null, "No offers loaded...", 500)
         } else {
 
         }
@@ -41,37 +78,54 @@ exports.read = (request, response, next) => {
 
     MotorVehicleModel.findById(vehicleId, function (error, vehicle) {
         if (vehicle) {
-            onSuccess(response, vehicle, "Motor-vehicle with !")
+            message = "Motor-vehicle with ID: " + vehicle.id + " loaded successfully !"
+            onSuccess(response, vehicle, message, 200)
         } else if (error) {
-            onFail(response, null, "ERROR loading vehicle with id " + vehicleId)
+            onFail(response, null, "ERROR loading vehicle with id " + vehicleId, 500)
         } else {
-            onFail(response, null, "No vehicles found with id!" + vehicleId)
+            onFail(response, null, "No vehicles found with id!" + vehicleId, 400)
         }
 
     });
 };
 
-function onSuccess(response, object, message) {
+exports.delete = (request, response, next) => {
+    const vehicleId = request.params.id
+
+    MotorVehicleModel.findByIdAndRemove(vehicleId, function (error, deletedVehicle) {
+        if (error) {
+            onFail(response, null, "Failed to delete offer...", 500)
+        } else {
+            onSuccess(response, deletedVehicle, "Offer deleted !", 200)
+        }
+    })
+
+}
+
+function onSuccess(response, object, message, code) {
     prettyPrint(message, "$", 5)
     response.status(200).json({
+        code: code,
         message: message,
         entity: object
     });
 }
 
-function onFail(response, object, message) {
+function onFail(response, object, message, code) {
     prettyPrint(message, "!", 5)
-    response.status(201).json({
+    response.status(200).json({
+        code: code,
         message: message,
         entity: object
     });
 }
 
 function prettyPrint(message, separator, numOfRows) {
-    // 6
+
     console.log()
     var dateTime = new Date().toLocaleTimeString()
     console.log(" ".repeat(102) + dateTime)
+
     for (i = 0; i < numOfRows; i++) {
         if (i != 2) {
             let stars = ""

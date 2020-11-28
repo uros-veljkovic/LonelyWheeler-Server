@@ -13,6 +13,7 @@ const pedestrianVehicleRoutes = require('./api/routes/pedestrian-vehicle')
 const likedOfferRoutes = require('./api/routes/liked-offer')
 const offerRouter = require('./api/routes/offer')
 
+mongoose.set('useFindAndModify', false);
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         prettyPrint("SERVER STARTED !", "-", 5);

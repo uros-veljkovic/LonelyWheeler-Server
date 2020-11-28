@@ -15,7 +15,7 @@ exports.readAll = async function (request, response, next) {
 
     let array = [entities1, entities2, entities3]
 
-    onSuccess(response, flatten(array), "Good")
+    onSuccess(response, flatten(array), "Sellers offers loaded successfully !")
 
 };
 
@@ -44,12 +44,12 @@ exports.read = (request, response, next) => {
             offerId: offerId
         }, function (error, doc) {
             if (doc) {
-                onSuccess(response, true, "Favorite offer for user " + userId + " EXIST!")
+                onSuccess(response, true, "Favorite offer for user " + userId + " EXIST!", 200)
             } else if (error) {
                 console.log(error)
-                onFail(response, false, "Favorite offer for user " + userId + " DOES NOT EXIST!")
+                onFail(response, false, "Favorite offer for user " + userId + " DOES NOT EXIST!", 500)
             } else {
-                onFail(response, false, "Favorite offer for user " + userId + " DOES NOT EXIST!")
+                onFail(response, false, "Favorite offer for user " + userId + " DOES NOT EXIST!", 400)
             }
         });
 };
@@ -57,13 +57,13 @@ exports.read = (request, response, next) => {
 function create(offer, response) {
     offer.save(offer).then(docSaved => {
         if (docSaved) {
-            onSuccess(response, docSaved, "Added to favorites !");
+            onSuccess(response, docSaved, "Added to favorites !", 200);
         } else {
-            onServerFailed(response, null, "Fail adding to favorites...");
+            onServerFailed(response, null, "Fail adding to favorites...", 500);
         }
     }).catch(error => {
         console.log(error);
-        onFail(response, null, "SERVER[ERROR] Fail adding to favorites...");
+        onFail(response, null, "SERVER[ERROR] Fail adding to favorites...", 400);
     });
 }
 
@@ -72,24 +72,26 @@ function remove(offer, response) {
         userId: offer.userId,
         offerId: offer.offerId
     }).then(docDeleted => {
-        onSuccess(response, docDeleted, "Removed from favorites.");
+        onSuccess(response, docDeleted, "Removed from favorites.", 200);
     }).catch(error => {
         console.log(error);
-        onFail(response, null, "SERVER[ERROR] Fail adding to favorites...");
+        onFail(response, null, "SERVER[ERROR] Fail adding to favorites...", 400);
     });
 }
 
-function onSuccess(response, object, message) {
+function onSuccess(response, object, message, code) {
     prettyPrint(message, "#", 5)
     response.status(200).json({
+        code: code,
         message: message,
         entity: object
     });
 }
 
-function onFail(response, object, message) {
+function onFail(response, object, message, code) {
     prettyPrint(message, "!", 5)
-    response.status(201).json({
+    response.status(200).json({
+        code: code,
         message: message,
         entity: object
     });
