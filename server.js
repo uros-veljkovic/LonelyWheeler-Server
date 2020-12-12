@@ -12,6 +12,7 @@ const equipmentRoutes = require('./api/routes/equipment')
 const pedestrianVehicleRoutes = require('./api/routes/pedestrian-vehicle')
 const likedOfferRoutes = require('./api/routes/liked-offer')
 const offerRouter = require('./api/routes/offer')
+const queryRouter = require('./api/routes/query')
 
 mongoose.set('useFindAndModify', false);
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -27,6 +28,7 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
         server.use('/pedestrian-vehicles', pedestrianVehicleRoutes)
         server.use('/liked-offer', likedOfferRoutes)
         server.use('/offer', offerRouter)
+        server.use('/query', queryRouter)
 
         server.listen(process.env.PORT || 5050);
     })

@@ -22,16 +22,11 @@ const MotorVehicleModel = require('../api/model/motor-vehicle')
 
 exports.createOrUpdate = (request, response, next) => {
 
-    let entityId
+    let entityId = request.body._id
 
-    if (request.body._id === "") {
-
-        // Create new id for entity
+    if (entityId === "") {
+        prettyPrint("Create new id for entity", ".", 5)
         entityId = mongoose.Types.ObjectId()
-    } else {
-
-        // Take the id from request
-        entityId = request.body._id
     }
 
     let vehicle = new MotorVehicleModel({

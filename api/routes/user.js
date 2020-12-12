@@ -14,7 +14,7 @@ router.get('/:userID/likedOrDisliked/:sellerID', userController.isLiked)
 router.get('/:userID/rateCounter', userController.rateCounter)
 
 router.patch('/update', userController.updateUser)
-router.delete('/delete', userController.deleteUser)
+router.delete('/delete/:id', userController.deleteUser)
 
 
 module.exports = router;

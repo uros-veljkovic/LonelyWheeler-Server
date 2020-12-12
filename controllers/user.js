@@ -5,6 +5,10 @@ const userLikingSellerModule = require('../api/model/liked-seller')
 const { query } = require("express")
 
 const UserModel = userModule.userModel
+const MotorVehicleModel = require('../api/model/motor-vehicle')
+const PedestrianVehicleModel = require('../api/model/pedestrian-vehicle')
+const EquipmentModel = require('../api/model/equipment')
+const LikedOffersModel = require('../api/model/liked-offer')
 const UserLikingSellerModel = userLikingSellerModule.userLikingSellerModel
 
 
@@ -108,10 +112,10 @@ exports.isLiked = (request, response, next) => {
 
     UserLikingSellerModel.findOne(query, function (err, doc) {
         if (err) {
-            console.log("isLiked: ERROR -> " + err)
+            // console.log("isLiked: ERROR -> " + err)
             onFail(response, null, "Server failed to fetch data about liking this user.", 500)
         } else {
-            console.log("isLiked: DOC -> " + doc)
+            // console.log("isLiked: DOC -> " + doc)
             onSuccess(response, doc, "", 200)
         }
     })
@@ -129,6 +133,7 @@ exports.rateCounter = async function (request, response, next) {
     const disliked = await UserLikingSellerModel.countDocuments(queryDislikes).exec()
 
     const entity = { userId: sellerID, likes: liked, dislikes: disliked }
+    console.log(entity)
 
     onSuccess(response, entity, "", 200)
 }
@@ -191,13 +196,27 @@ exports.updateUser = (request, response, next) => {
 };
 
 exports.deleteUser = (request, response, next) => {
-    const entity = request.body
+    const entityID = request.params.id
+
+    UserModel.deleteMany({ _id: entityID }).exec()
+
+    MotorVehicleModel.deleteMany({ sellerId: entityID }).exec()
+    PedestrianVehicleModel.deleteMany({ sellerId: entityID }).exec()
+    EquipmentModel.deleteMany({ sellerId: entityID }).exec()
+
+    LikedOffersModel.deleteMany({ userId: entityID }).exec()
+    UserLikingSellerModel.deleteMany({ $or: [{ userID: entityID }, { sellerId: entityID }] }).exec()
+
+    onSuccess(response, null, "", 200)
+
 }
 
 
 
 function onSuccess(response, object, message, code) {
-    prettyPrint(message, "$", 5)
+    if (message !== "") {
+        prettyPrint(message, "$", 5)
+    }
     response.status(200).json({
         code: code,
         message: message,
